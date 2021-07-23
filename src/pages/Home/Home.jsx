@@ -4,6 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { addNewWord, selectItems } from "../../redux/reducers/dndReducer";
 import { NavLink, useParams } from "react-router-dom";
 import { useCallback } from "react";
+import { getFullTitle } from "../../utils/getFullTitle";
+import CreateNewWord from "../../utils/createNewWord";
 
 function Home() {
   const { items } = useSelector(selectItems);
@@ -11,39 +13,15 @@ function Home() {
   const intWord = Number(word);
   const dispatch = useDispatch();
 
-  const getFullTitle = () => {
-    let title = "";
-    items[intWord].letters.forEach((el) => {
-      title += el.title + " ";
-    });
-    return title;
-  };
-
   const addNewWordButton = useCallback(() => {
     const word = prompt("Напишіть слово", "Лисиця");
-    const toArray = word.split("");
-    const letters = [];
-    for (let i = 0; i < toArray.length; i++) {
-      letters.push({
-        id: i + 1,
-        title: toArray[i],
-        hold: false,
-        droppedHere: false,
-        bg: "#a29bfe",
-      });
-    }
-    const newWord = {
-      id: new Date(),
-      answer: word,
-      points: 1,
-      letters,
-    };
+    const newWord = new CreateNewWord(new Date(), word, false, false, "red");
     dispatch(addNewWord(newWord));
   }, [dispatch]);
 
   return (
     <Wrapper>
-      <Header>{getFullTitle()}</Header>
+      <Header>{getFullTitle(intWord, items)}</Header>
       <div>
         <AddWord onClick={addNewWordButton}>add new word</AddWord>
         <NavLink to={"/2"}>2</NavLink>

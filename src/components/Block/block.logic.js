@@ -9,17 +9,21 @@ import {
 } from "../../redux/reducers/dndReducer";
 import { useCallback } from "react";
 import { useParams } from "react-router-dom";
+import changeKeys from "../../utils/changeObjectsKeys";
 
 function useBlockDrag(title, id) {
   const { items } = useSelector(selectItems);
   const { word } = useParams();
   const intWord = Number(word);
-
   const dispatch = useDispatch();
+
+  const findIndexById = useCallback((pId) => {
+    return items[intWord].letters.findIndex((item) => item.id === (pId ?? id));
+  }, []);
 
   const handleDragStart = useCallback(
     (e) => {
-      const index = items[intWord].letters.findIndex((item) => item.id === id);
+      const index = findIndexById(null);
       e.dataTransfer.setData("currentItem", index);
       dispatch(setCurrentItem(index));
       // dispatch(setHold({ id: intWord }));
@@ -45,22 +49,12 @@ function useBlockDrag(title, id) {
   const handleDragDrop = useCallback(
     (e) => {
       e.preventDefault();
-      const put = items[intWord].letters.findIndex(
-        (item) => item.id === Number(e.target.dataset.id)
-      );
-      dispatch(setDropToIndex(put));
+      const put = findIndexById(Number(e.target.dataset.id));
       const take = Number(e.dataTransfer.getData("currentItem"));
-      const takeEl = {
-        ...items[intWord].letters[take],
-        title: items[intWord].letters[put].title,
-        bg: items[intWord].letters[put].bg,
-      };
-      const putEl = {
-        ...items[intWord].letters[put],
-        title: items[intWord].letters[take].title,
-        bg: items[intWord].letters[take].bg,
-      };
 
+      const first = items[intWord].letters[put];
+      const second = items[intWord].letters[take];
+      const [putEl, takeEl] = changeKeys([first, second], ["title", "bg"]);
       const newItems = [...items[intWord].letters];
 
       const resultItems = newItems.map((item, i) => {
@@ -74,6 +68,7 @@ function useBlockDrag(title, id) {
       });
 
       dispatch(setShuffleItems(resultItems, intWord));
+      dispatch(setDropToIndex(put));
       // dispatch(setDroppedHere());
     },
     [items]
