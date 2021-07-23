@@ -37,6 +37,7 @@ export const SHUFFLE_ITEMS = "SHUFFLE_ITEMS";
 export const SET_HOLD = "SET_HOLD";
 export const SET_DROPPED_HERE = "SET_DROPPED_HERE";
 export const SET_NEW_WORD = "SET_NEW_WORD";
+export const DELETE_ITEM = "DELETE_ITEM";
 
 export const setCurrentItem = (payload) => ({
   type: SET_CURRENT_ITEM,
@@ -65,6 +66,8 @@ export const addNewWord = (payload) => ({
   payload,
 });
 
+export const deleteItem = (payload) => ({ type: DELETE_ITEM, payload });
+
 export const selectItems = (state) => state.dnd;
 
 function dndReducer(state = initialState, { type, payload }) {
@@ -73,6 +76,11 @@ function dndReducer(state = initialState, { type, payload }) {
       return {
         ...state,
         items: [...state.items, payload],
+      };
+    case DELETE_ITEM:
+      return {
+        ...state,
+        items: state.items.filter((item) => item.id !== payload),
       };
     case SET_CURRENT_ITEM:
       return {

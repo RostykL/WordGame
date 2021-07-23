@@ -7,10 +7,12 @@ export const Wrapper = styled.div`
 `;
 
 export const PreviewBlock = styled.div`
+  position: relative;
   width: 250px;
   height: 150px;
   border-radius: 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  border: 2px solid ${({ completed }) => (completed ? "lightgreen" : "coral")};
   background-color: white;
   padding: 15px;
   margin: 10px;
@@ -26,7 +28,8 @@ export const PreviewBlock = styled.div`
     text-decoration: none;
   }
   a:hover {
-    color: white;
+    cursor: pointer;
+    color: gray;
   }
 `;
 
@@ -46,5 +49,26 @@ export const AddNewBlock = styled.div`
   &:hover {
     cursor: pointer;
     text-decoration: underline;
+  }
+`;
+
+export const DeleteItem = styled.div`
+  width: 30px;
+  height: 30px;
+  border-top-right-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: red;
+  position: absolute;
+  top: 0;
+  right: 0;
+  &:after {
+    color: white;
+    content: "-";
+  }
+  &:hover {
+    background-color: coral;
+    cursor: pointer;
   }
 `;

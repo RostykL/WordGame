@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import {
   AddNewWord,
   Input,
@@ -7,30 +7,16 @@ import {
   Wrapper,
 } from "./addWordPopup.styled";
 import getRandomColor from "../../utils/randomColor";
-import debounce from "lodash";
 import uuidv4 from "../../utils/uuidv4";
+import CreateNewWord from "../../utils/createNewWord";
+import { addNewWord } from "../../redux/reducers/dndReducer";
+import { useDispatch } from "react-redux";
 
 function AddWordPopup() {
-  const [title, setTitle] = useState(null);
+  const [title, setTitle] = useState("");
   const [colors, setColors] = useState([]);
 
-  const handleWriteTitle = useCallback((e) => {
-    const key = e.keyCode || e.charCode;
-    if (!(key >= 65 && key <= 120) && key !== 32 && key !== 0) return false;
-    const letter = e.target.value;
-    const lastLetter = letter[letter.length - 1];
-    setTitle(letter.toLowerCase());
-    setColors((prev) => [
-      ...prev,
-      {
-        bg: getRandomColor(),
-        title: lastLetter,
-        id: uuidv4(),
-        hold: false,
-        droppedHere: false,
-      },
-    ]);
-  }, []);
+  const dispatch = useDispatch();
 
   const findColor = useCallback(
     (id) => {
@@ -48,20 +34,58 @@ function AddWordPopup() {
         return color;
       });
       setColors(updatedColors);
-      console.log(colors);
     },
     [colors]
   );
+
+  const lettersToObj = (letters) => {
+    const result = [];
+    for (let i = 0; i < letters.length; i++) {
+      result.push({
+        bg: getRandomColor(),
+        title: letters[i],
+        id: i + 1,
+        hold: false,
+        droppedHere: false,
+      });
+    }
+    return result;
+  };
+
+  const handleTitle = useCallback(
+    (e) => {
+      const letter = e.target.value.trim().toLowerCase();
+      if (letter?.length + 1 >= 10) return false;
+      const changedLetters = lettersToObj(letter);
+      setColors(changedLetters);
+      setTitle(letter);
+    },
+    [setTitle]
+  );
+
+  const handleAddNewWord = () => {
+    const newWord = new CreateNewWord(
+      uuidv4(),
+      title,
+      false,
+      false,
+      getRandomColor(),
+      colors
+    );
+    dispatch(addNewWord(newWord));
+  };
 
   return (
     <Wrapper>
       <div>
         <Input
           placeholder={"Лисиця"}
-          onKeyUp={(e) => handleWriteTitle(e)}
+          onChange={(e) => handleTitle(e)}
           maxLength={10}
         />
-        <AddNewWord type={"submit"}>add new word</AddNewWord>
+        <AddNewWord type={"submit"} onClick={handleAddNewWord}>
+          add new word
+        </AddNewWord>
       </div>
 
       <Letters>
